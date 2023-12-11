@@ -17,9 +17,4 @@ export class AnimationTweenUtils {
   static update(): void { 
     TWEEN.update();
   }
-  
 };
-// new TWEEN.Tween(ship)
-//         .to({x: 1000,}, 4000)
-//         .delay(5000)
-//         .start()

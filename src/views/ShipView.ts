@@ -16,7 +16,7 @@ export class ShipView {
             shipType,
             new Graphics(),
         );
-        this.shipDraw(ship);
+        this.shipViewParams(ship);
         ship.graphic.position.set(900, 190);
         return ship;
     }
@@ -37,7 +37,7 @@ export class ShipView {
         return AnimationTweenUtils.isOutFrom(ship.graphic, { x: 1000 }, 4000, 5000)
         .onStart(() => {
             ship.graphic.clear();
-            this.shipDraw(ship, true);
+            this.shipViewParams(ship, true);
             ship?.graphic?.position.set(400, 300)
         })
     };
@@ -61,7 +61,7 @@ export class ShipView {
         }
     }
 
-    shipDraw(ship: Ship, redraw = false) { 
+    shipViewParams(ship: Ship, redraw = false) { 
         let color: number;
         let fill: number[];
         if (!redraw) {

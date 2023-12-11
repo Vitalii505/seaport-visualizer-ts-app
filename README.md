@@ -45,7 +45,9 @@ cd seaport-visualizer-ts-app
 # install the dependencies via npm
 npm install
 
-# start the server in dev mode with HMR
+# build the server in dev mode
+npm run build
+
+# start the server in dev mode
 npm run start
-```
-go to [http://localhost:9000](http://localhost:9000)
+go to http://localhost:9000

@@ -5,6 +5,7 @@ import { RandomUtils } from '../utils/RandomUtils';
 import * as TWEEN from '@tweenjs/tween.js';
 import { Dock } from '../models/DockModel';
 import { ShipView } from '../views/ShipView';
+import { DockView } from '../views/DockView';
 
 export class ShipsService {
     private app: Application;
@@ -26,7 +27,7 @@ export class ShipsService {
         };
     }
     
-    createShips(docksSetting: IDocksSetting) {
+    createShips(docks: IDocks, dockViewParams: Function) {
         let startTime = Date.now();
         let randomTime = RandomUtils.mathRoundRandom(1000, 8000);
         this.app.ticker.add(() => {
@@ -44,47 +45,47 @@ export class ShipsService {
                 }
                 
                 this.shipView.addShipView(ship.graphic);
-                this.shipComeToPort(ship, docksSetting);
+                this.processShipComeToPort(ship, docks, dockViewParams);
                 startTime = Date.now();
                 randomTime = RandomUtils.mathRoundRandom(1000, 8000);
             }
-            this.endOfWaiting(docksSetting);
+            this.processEndOfWaiting(docks, dockViewParams);
         })
     }
 
-    endOfWaiting(docksSetting: IDocksSetting) {
-        for (const dock in docksSetting.docks) {
-            if (docksSetting.docks[dock].full) {
-                if(docksSetting.docks[dock].free){
+    processEndOfWaiting(docks: IDocks, dockViewParams: Function) {
+        for (const dock in docks) {
+            if (docks[dock].full) {
+                if(docks[dock].free){
                     for (let i = this.lines.greenLine.length-1; i >= 0; i--) {
                         const ship = this.lines.greenLine[i];
                         ship?.graphic?.position.set(
                             100,
-                            docksSetting.docks[dock].y + 30
+                            docks[dock].y + 30
                         )
-                        docksSetting.docks[dock].free = false;
-                        docksSetting.docks[dock].full = false;
+                        docks[dock].free = false;
+                        docks[dock].full = false;
                         this.lines.greenLine.splice(i, 1);
-                        this.shipOutFromPort(ship, docksSetting.docks[dock]);
-                        docksSetting.dockView.docsDraw(docksSetting.docks[dock].graphic, !docksSetting.docks[dock].full);
+                        this.processShipOutFromPort(ship, docks[dock]);
+                        dockViewParams(docks[dock].graphic, !docks[dock].full);
                         break;
                     }
                     break;
                 }
-            } else if (!docksSetting.docks[dock].full) {
-                if(docksSetting.docks[dock].free) {
+            } else if (!docks[dock].full) {
+                if(docks[dock].free) {
                     for (let i = this.lines.redLine.length-1; i >= 0; i--) {
                         const ship = this.lines.redLine[i];
                         ship?.graphic?.position.set(
                             100,
-                            docksSetting.docks[dock].y + 30
+                            docks[dock].y + 30
                         )
-                        docksSetting.docks[dock].free = false;
-                        docksSetting.docks[dock].full = true;
+                        docks[dock].free = false;
+                        docks[dock].full = true;
 
                         this.lines.redLine.splice(i, 1);
-                        this.shipOutFromPort(ship, docksSetting.docks[dock]);
-                        docksSetting.dockView.docsDraw(docksSetting.docks[dock].graphic, !docksSetting.docks[dock].full);
+                        this.processShipOutFromPort(ship, docks[dock]);
+                        dockViewParams(docks[dock].graphic, !docks[dock].full);
                         break;
                     }
                     break;
@@ -93,20 +94,20 @@ export class ShipsService {
         }
     }
     
-    shipComeToPort(ship: Ship, docksSetting: IDocksSetting) {
+    processShipComeToPort(ship: Ship, docks: IDocks, dockViewParams: Function): void {
         this.shipView.handleAnimationShipComeTo(ship)
             .onComplete(() => {
             if (ship.type === 'red') {
                 let busyDocks = 0;
-                for (const dock in docksSetting.docks) {
-                    if (!docksSetting.docks[dock].full) {
-                        if (docksSetting.docks[dock].free) {
-                            const dockPositionY = docksSetting.docks[dock].y + 30
+                for (const dock in docks) {
+                    if (!docks[dock].full) {
+                        if (docks[dock].free) {
+                            const dockPositionY = docks[dock].y + 30
                             ship.graphic = this.shipView.setShipPosition(ship.graphic, dockPositionY)
-                            docksSetting.docks[dock].free = false;
-                            docksSetting.docks[dock].full = true;
-                            docksSetting.dockView.docsDraw(docksSetting.docks[dock].graphic, !docksSetting.docks[dock].full);
-                            this.shipOutFromPort(ship, docksSetting.docks[dock]);
+                            docks[dock].free = false;
+                            docks[dock].full = true;
+                            dockViewParams(docks[dock].graphic, !docks[dock].full);
+                            this.processShipOutFromPort(ship, docks[dock]);
                             break;
                         } else {
                             busyDocks++;
@@ -120,36 +121,35 @@ export class ShipsService {
                     this.shipView.waitAndSetPosition(ship, this.lines);
                 }
             } else {
-                let busyPiers = 0;
-                for (const dock in docksSetting.docks) {
-                    if (docksSetting.docks[dock].full) {
-                        if(docksSetting.docks[dock].free){
+                let busyDocks = 0;
+                for (const dock in docks) {
+                    if (docks[dock].full) {
+                        if(docks[dock].free){
                             ship?.graphic?.position.set(
                                 100,
-                                docksSetting.docks[dock].y + 30
+                                docks[dock].y + 30
                             )
-                            docksSetting.docks[dock].free = false;
-                            docksSetting.docks[dock].full = false;
-                            docksSetting.dockView.docsDraw(docksSetting.docks[dock].graphic, !docksSetting.docks[dock].full);
-                            this.shipOutFromPort(ship, docksSetting.docks[dock]);
+                            docks[dock].free = false;
+                            docks[dock].full = false;
+                            dockViewParams(docks[dock].graphic, !docks[dock].full);
+                            this.processShipOutFromPort(ship, docks[dock]);
                             break;
                         } else {
-                            busyPiers++;
+                            busyDocks++;
                         }
                     } else {
-                        busyPiers++;
+                        busyDocks++;
                     }
                 }
-                if (busyPiers === 4) {
+                if (busyDocks === 4) {
                     this.lines.greenLine.push(ship);
-                    console.log("4.2 - ***--> Service: shipComeToPort() - this.lines : <--***  ", this.lines);
                     this.shipView.waitAndSetPosition(ship, this.lines);
                 }    
         }})
         .start();
     }
 
-    shipOutFromPort(ship: Ship, dock: Dock) {
+    processShipOutFromPort(ship: Ship, dock: Dock) {
         this.shipView.handleAnimationShipOutFrom(ship)
         .onComplete(()=>{
             dock.free = true;
@@ -166,7 +166,7 @@ export class ShipsService {
                     }
                 })
             }
-            this.app.stage.removeChild(ship.graphic ? ship.graphic : new Graphics());
+            this.shipView.removeShipView(ship.graphic);
         });
     }
 }

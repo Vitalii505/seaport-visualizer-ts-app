@@ -3,7 +3,7 @@ import { ShipController } from './ShipController';
 import { DockController } from './DockController';
 
 export class PortSimulationController {
-    public app: Application;
+    private app: Application;
     private shipController: ShipController;
     private dockController: DockController;
 
@@ -16,9 +16,8 @@ export class PortSimulationController {
     initialize(): void {
         this.dockController.initialize();
         this.shipController.initialize(
-            this.dockController.getDocksSetting()
+            this.dockController.docks,
+            this.dockController.dockView.dockViewParams
         );
     }
-
-    update(delta: number): void {}
 }

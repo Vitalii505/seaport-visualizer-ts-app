@@ -9,7 +9,7 @@ export class DockView {
     
     public render(index: number) {
         const dockGraphic = new Graphics();
-        this.docsDraw(dockGraphic, true);
+        this.dockViewParams(dockGraphic, true);
         dockGraphic.position.set(5, 20 + (index * 120))
         this.app.stage.addChild(dockGraphic);
         return dockGraphic;
@@ -24,7 +24,7 @@ export class DockView {
         this.app.stage.addChild(gate);
     }
 
-    docsDraw(dockGraphic: Graphics, toEmpty: boolean) {
+    dockViewParams(dockGraphic: Graphics, toEmpty: boolean) {
         if (!toEmpty) {
             dockGraphic.clear();
             dockGraphic.lineStyle(5, 0xffff00);
@@ -37,4 +37,6 @@ export class DockView {
             dockGraphic.drawRect(0, 0, 40, 100);
         }
     }
+
+    
 }
