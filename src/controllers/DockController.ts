@@ -17,7 +17,7 @@ export class DockController {
         this.dockView = this.docksService.dockView;
     }
 
-    initialize(): void {
+    initializeDocks(): void {
         for (let i = 0; i < 4; i++) {
             this.docksService.createDocks(i);     
         }

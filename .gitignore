@@ -5,6 +5,7 @@
 /dist
 /tmp
 /out-tsc
+/src/index.js
 
 # IDEs and editors
 /.idea

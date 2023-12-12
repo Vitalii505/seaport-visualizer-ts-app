@@ -13,7 +13,7 @@ export class ShipController {
         this.shipService = new ShipsService(app);
     }
 
-    initialize(docks: IDocks, dockViewParams: Function): void {
+    initializeShips(docks: IDocks, dockViewParams: Function): void {
         this.shipService.createShips(docks, dockViewParams); 
     }
 }

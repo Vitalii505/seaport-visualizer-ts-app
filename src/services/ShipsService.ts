@@ -5,7 +5,6 @@ import { RandomUtils } from '../utils/RandomUtils';
 import * as TWEEN from '@tweenjs/tween.js';
 import { Dock } from '../models/DockModel';
 import { ShipView } from '../views/ShipView';
-import { DockView } from '../views/DockView';
 
 export class ShipsService {
     private app: Application;
@@ -26,34 +25,41 @@ export class ShipsService {
             greenLine: [],
         };
     }
-    
+        
     createShips(docks: IDocks, dockViewParams: Function) {
         let startTime = Date.now();
         let randomTime = RandomUtils.mathRoundRandom(1000, 8000);
         this.app.ticker.add(() => {
             TWEEN.update();
-            const randomShip = RandomUtils.mathRoundRandom(-10, 10);
-            const actualTime = Date.now();
-            if (actualTime - startTime > randomTime) {
-                let ship;
-                if (randomShip > 0) {
-                    ship = this.shipView.render(this.ships.lastId++, "green")
-                    this.ships.greenShips.push(ship);
-                } else {
-                    ship = this.shipView.render(this.ships.lastId++, "red")
-                    this.ships.redShips.push(ship);
-                }
-                
+            if (this.shouldCreateShip(startTime, randomTime)) {
+                const ship = this.createShip();
                 this.shipView.addShipView(ship.graphic);
                 this.processShipComeToPort(ship, docks, dockViewParams);
                 startTime = Date.now();
                 randomTime = RandomUtils.mathRoundRandom(1000, 8000);
             }
             this.processEndOfWaiting(docks, dockViewParams);
-        })
+        });
     }
 
-    processEndOfWaiting(docks: IDocks, dockViewParams: Function) {
+    private shouldCreateShip(startTime: number, randomTime: number): boolean {
+        const actualTime = Date.now();
+        return actualTime - startTime > randomTime;
+    }
+
+    private createShip(): Ship {
+        const randomShip = RandomUtils.mathRoundRandom(-10, 10);
+        const shipType = randomShip > 0 ? "green" : "red";
+        const ship = this.shipView.render(this.ships.lastId++, shipType);
+        if (shipType === "green") {
+            this.ships.greenShips.push(ship);
+        } else {
+            this.ships.redShips.push(ship);
+        }
+        return ship;
+    }
+
+    private processEndOfWaiting(docks: IDocks, dockViewParams: Function) {
         for (const dock in docks) {
             if (docks[dock].full) {
                 if(docks[dock].free){
@@ -94,9 +100,9 @@ export class ShipsService {
         }
     }
     
-    processShipComeToPort(ship: Ship, docks: IDocks, dockViewParams: Function): void {
+    private processShipComeToPort(ship: Ship, docks: IDocks, dockViewParams: Function): void {
         this.shipView.handleAnimationShipComeTo(ship)
-            .onComplete(() => {
+        .onComplete(() => {
             if (ship.type === 'red') {
                 let busyDocks = 0;
                 for (const dock in docks) {
@@ -145,11 +151,12 @@ export class ShipsService {
                     this.lines.greenLine.push(ship);
                     this.shipView.waitAndSetPosition(ship, this.lines);
                 }    
-        }})
+            }
+        })
         .start();
     }
 
-    processShipOutFromPort(ship: Ship, dock: Dock) {
+    private processShipOutFromPort(ship: Ship, dock: Dock) {
         this.shipView.handleAnimationShipOutFrom(ship)
         .onComplete(()=>{
             dock.free = true;

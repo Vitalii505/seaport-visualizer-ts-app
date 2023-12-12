@@ -14,8 +14,8 @@ export class PortSimulationController {
     }
 
     initialize(): void {
-        this.dockController.initialize();
-        this.shipController.initialize(
+        this.dockController.initializeDocks();
+        this.shipController.initializeShips(
             this.dockController.docks,
             this.dockController.dockView.dockViewParams
         );
